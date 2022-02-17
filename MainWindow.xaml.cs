@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Mime;
 using System.Reflection;
@@ -80,83 +81,91 @@ namespace Weatherly
             try
             {
                 //Figure out if locally there is day or night
-            DateTime currentDateTime = DateTime.UtcNow;
+                DateTime currentDateTime = DateTime.UtcNow;
 
-            string timeZOffset = (string)data["tzoffset"];
-            
-            DateTime localDateTime = currentDateTime.AddHours(double.Parse(timeZOffset, CultureInfo.InvariantCulture));
+                string timeZOffset = (string)data["tzoffset"];
 
-            DateTime localSunset = (DateTime)data["days"][0]["sunset"];
-            DateTime localSunrise = (DateTime)data["days"][0]["sunrise"];
+                DateTime localDateTime =
+                    currentDateTime.AddHours(double.Parse(timeZOffset, CultureInfo.InvariantCulture));
 
-            var isDay = localDateTime < localSunset && localDateTime > localSunrise;
+                DateTime localSunset = (DateTime)data["days"][0]["sunset"];
+                DateTime localSunrise = (DateTime)data["days"][0]["sunrise"];
 
-            //Conditions itself
-            string conditions = (string)data["days"][0]["conditions"];
+                var isDay = localDateTime < localSunset && localDateTime > localSunrise;
 
-            Console.WriteLine(conditions);
+                //Conditions itself
+                string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            if (conditions.ToLower().Contains("clear"))
-            {
-                if (isDay)
+                string conditions = (string)data["days"][0]["conditions"];
+
+                if (conditions.ToLower().Contains("clear"))
+                {
+                    if (isDay)
+                    {
+                        ConditionImage.Source =
+                            new BitmapImage(new Uri(path + "/images/clear_day.png"));
+                    }
+                    else
+                    {
+                        ConditionImage.Source =
+                            new BitmapImage(new Uri(path + "/images/clear_night.png"));
+                    }
+                }
+
+                if (conditions.ToLower().Contains("partially"))
+                {
+                    if (isDay)
+                    {
+                        ConditionImage.Source =
+                            new BitmapImage(new Uri(path + "/images/partially_day.png"));
+                    }
+                    else
+                    {
+                        ConditionImage.Source =
+                            new BitmapImage(new Uri(path + "/images/partially_night.png"));
+                    }
+                }
+
+                if (conditions.ToLower().Contains("overcast"))
                 {
                     ConditionImage.Source =
-                        new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/clear_day.png"));
+                        new BitmapImage(new Uri(path + "/images/overcast.png"));
                 }
-                else
+
+                if (conditions.ToLower().Contains("thunderstorm"))
                 {
                     ConditionImage.Source =
-                        new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/clear_night.png"));
+                        new BitmapImage(new Uri(path + "/images/thunderstorm.png"));
                 }
-            }
-            if (conditions.ToLower().Contains("partially"))
-            {
-                if (isDay)
+
+                if (conditions.ToLower().Contains("rain"))
                 {
                     ConditionImage.Source =
-                        new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/partially_day.png"));
+                        new BitmapImage(new Uri(path + "/images/rain.png"));
                 }
-                else
+
+                if (conditions.ToLower().Contains("snow"))
                 {
                     ConditionImage.Source =
-                        new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/partially_night.png"));
+                        new BitmapImage(new Uri(path + "/images/snow.png"));
                 }
-            }
-            if (conditions.ToLower().Contains("overcast"))
-            {
-                ConditionImage.Source =
-                    new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/overcast.png"));
-            }
-            if (conditions.ToLower().Contains("thunderstorm"))
-            {
-                ConditionImage.Source =
-                    new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/thunderstorm.png"));
-            }
-            if (conditions.ToLower().Contains("rain"))
-            {
-                ConditionImage.Source =
-                    new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/rain.png"));
-            }
-            if (conditions.ToLower().Contains("snow"))
-            {
-                ConditionImage.Source =
-                    new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/snow.png"));
-            }
-            if (conditions.ToLower().Contains("snow") && conditions.ToLower().Contains("rain"))
-            {
-                ConditionImage.Source =
-                    new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/snowandrain.png"));
-            }
-            if (conditions.ToLower().Contains("fog"))
-            {
-                ConditionImage.Source = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "images/fog.png"));
-            }
+
+                if (conditions.ToLower().Contains("snow") && conditions.ToLower().Contains("rain"))
+                {
+                    ConditionImage.Source =
+                        new BitmapImage(new Uri(path + "/images/snowandrain.png"));
+                }
+
+                if (conditions.ToLower().Contains("fog"))
+                {
+                    ConditionImage.Source =
+                        new BitmapImage(new Uri(path + "/images/fog.png"));
+                }
             }
             catch (Exception e)
             {
                 MessageBox.Show($"Unknown exception occurred!\n{e}", "Weatherly", MessageBoxButton.OKCancel,
                     MessageBoxImage.Error);
-                Console.WriteLine(e);
             }
         }
 
