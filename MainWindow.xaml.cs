@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Weatherly
@@ -52,15 +44,18 @@ namespace Weatherly
                 DateTime localDateTime =
                     currentDateTime.AddHours(double.Parse(timeZOffset, CultureInfo.InvariantCulture));
 
-                DateTime localSunset = (DateTime)data["days"][0]["sunset"];
-                DateTime localSunrise = (DateTime)data["days"][0]["sunrise"];
+                var sunsets = data["days"].Select(m => (DateTime)m.SelectToken("sunset")).ToList();
+                var sunrises = data["days"].Select(m => (DateTime)m.SelectToken("sunset")).ToList();
+                DateTime localSunset = sunsets[dayIndex];
+                DateTime localSunrise = sunrises[dayIndex];
 
                 var isDay = localDateTime < localSunset && localDateTime > localSunrise;
 
                 //Conditions itself
-                string conditions = (string)data["days"][0]["conditions"];
+                var conditions = data["days"].Select(m => (string)m.SelectToken("conditions")).ToList();
+                string condition = conditions[dayIndex];
 
-                if (conditions.ToLower().Contains("clear"))
+                if (condition.ToLower().Contains("clear"))
                 {
                     if (isDay)
                     {
@@ -74,7 +69,7 @@ namespace Weatherly
                     }
                 }
 
-                if (conditions.ToLower().Contains("partially"))
+                if (condition.ToLower().Contains("partially"))
                 {
                     if (isDay)
                     {
@@ -88,37 +83,37 @@ namespace Weatherly
                     }
                 }
 
-                if (conditions.ToLower().Contains("overcast"))
+                if (condition.ToLower().Contains("overcast"))
                 {
                     ConditionImage.Source =
                         new BitmapImage(new Uri(path + "/images/overcast.png"));
                 }
 
-                if (conditions.ToLower().Contains("thunderstorm"))
+                if (condition.ToLower().Contains("thunderstorm"))
                 {
                     ConditionImage.Source =
                         new BitmapImage(new Uri(path + "/images/thunderstorm.png"));
                 }
 
-                if (conditions.ToLower().Contains("rain"))
+                if (condition.ToLower().Contains("rain"))
                 {
                     ConditionImage.Source =
                         new BitmapImage(new Uri(path + "/images/rain.png"));
                 }
 
-                if (conditions.ToLower().Contains("snow"))
+                if (condition.ToLower().Contains("snow"))
                 {
                     ConditionImage.Source =
                         new BitmapImage(new Uri(path + "/images/snow.png"));
                 }
 
-                if (conditions.ToLower().Contains("snow") && conditions.ToLower().Contains("rain"))
+                if (condition.ToLower().Contains("snow") && condition.ToLower().Contains("rain"))
                 {
                     ConditionImage.Source =
                         new BitmapImage(new Uri(path + "/images/snowandrain.png"));
                 }
 
-                if (conditions.ToLower().Contains("fog"))
+                if (condition.ToLower().Contains("fog"))
                 {
                     ConditionImage.Source =
                         new BitmapImage(new Uri(path + "/images/fog.png"));
