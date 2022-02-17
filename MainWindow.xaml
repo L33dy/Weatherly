@@ -38,8 +38,12 @@
                 <ColumnDefinition></ColumnDefinition> <!-- Sunset -->
             </Grid.ColumnDefinitions>
             
-            <Label Name="Address" Grid.Row="0" Grid.ColumnSpan="10" Grid.Column="0" HorizontalContentAlignment="Center" FontSize="25">
+            <Label Name="Address" Grid.Row="0" Grid.ColumnSpan="10" Grid.Column="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" FontSize="25">
             </Label>
+            <Label Name="Datetime" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="10" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="20"></Label>
+            
+            <Button Name="PreviousDay" Grid.Row="0" Grid.Column="0" Width="50" Visibility="Hidden" HorizontalAlignment="Left" VerticalContentAlignment="Center" FontSize="25" Click="PreviousDay_OnClick" Background="White">&lt;-</Button>
+            <Button Name="NextDay" Grid.Row="0" Grid.Column="9" Width="50" Visibility="Hidden" HorizontalAlignment="Right" VerticalContentAlignment="Center" FontSize="25" Click="NextDay_OnClick" Background="White">-&gt;</Button>
             
             <!-- NAMES -->
             <Label Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Center" FontSize="15">Temperature</Label>
@@ -79,7 +83,7 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
-            <Label Grid.Row="0" Grid.Column="0" FontSize="15" Content="Enter a city:"></Label>
+            <Label Grid.Row="0" Grid.Column="0" FontSize="15" Content="Enter an address:"></Label>
             <TextBox Grid.Row="0" Grid.Column="1" Name="TextBox" Width="100"></TextBox>
             
             <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0 10">
@@ -91,8 +95,8 @@
                 </Grid.RowDefinitions>
                 
                 <Label HorizontalAlignment="Center" FontSize="20" Padding="0 0 0 0"><Underline>Unit Group</Underline></Label>
-                <RadioButton Grid.Row="1" Name="UsSwitch" HorizontalAlignment="Left" Content="US (F°, miles)" IsChecked="True" FontSize="15" VerticalContentAlignment="Center"></RadioButton>
-                <RadioButton Grid.Row="2" Name="MetricSwitch" HorizontalAlignment="Left" Content="Metric (C°, km)" FontSize="15" VerticalContentAlignment="Center"></RadioButton>
+                <RadioButton Grid.Row="2" Name="UsSwitch" HorizontalAlignment="Left" Content="US (F°, miles)" FontSize="15" VerticalContentAlignment="Center"></RadioButton>
+                <RadioButton Grid.Row="1" Name="MetricSwitch" HorizontalAlignment="Left" Content="Metric (C°, km)" IsChecked="True" FontSize="15" VerticalContentAlignment="Center"></RadioButton>
                 <RadioButton Grid.Row="3" Name="UkSwitch" HorizontalAlignment="Left" Content="UK (C°, miles)" FontSize="15" VerticalContentAlignment="Center"></RadioButton>
             </Grid>
             <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enter" Click="LoadWeatherData" Width="100" Height="30" Margin="0 15 0 0"></Button>

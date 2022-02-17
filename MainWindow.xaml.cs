@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Reflection;
@@ -23,60 +26,21 @@ namespace Weatherly
 
         private WebClient wc = new WebClient();
 
-        private dynamic data;
+        private JObject data;
+
+        private int dayIndex;
+        
+        string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         public MainWindow()
         {
+            Icon = new BitmapImage(new Uri(path + "/images/icon.png"));
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
         }
 
         private void DisplayWeatherData()
         {
-            WeatherData.Visibility = System.Windows.Visibility.Visible;
-
-            Address.Content = (string)data["resolvedAddress"];
-
-            switch (unitGroup)
-            {
-                case "us":
-                    Temp.Content = (string)data["days"][0]["temp"] + "°F";
-                    TempMax.Content = (string)data["days"][0]["tempmax"] + "°F";
-                    TempMin.Content = (string)data["days"][0]["tempmin"] + "°F";
-                    Humidity.Content = (string)data["days"][0]["humidity"] + "%";
-                    WindSpeed.Content = (string)data["days"][0]["windspeed"] + "mp/h";
-                    WindDir.Content = (string)data["days"][0]["winddir"] + "°";
-                    Visibility.Content = (string)data["days"][0]["visibility"] + "mi";
-                    UvIndex.Content = (string)data["days"][0]["uvindex"];
-                    Sunrise.Content = (string)data["days"][0]["sunrise"];
-                    Sunset.Content = (string)data["days"][0]["sunset"];
-                    break;
-                case "metric":
-                    Temp.Content = (string)data["days"][0]["temp"] + "°C";
-                    TempMax.Content = (string)data["days"][0]["tempmax"] + "°C";
-                    TempMin.Content = (string)data["days"][0]["tempmin"] + "°C";
-                    Humidity.Content = (string)data["days"][0]["humidity"] + "%";
-                    WindSpeed.Content = (string)data["days"][0]["windspeed"] + "km/h";
-                    WindDir.Content = (string)data["days"][0]["winddir"] + "°";
-                    Visibility.Content = (string)data["days"][0]["visibility"] + "km";
-                    UvIndex.Content = (string)data["days"][0]["uvindex"];
-                    Sunrise.Content = (string)data["days"][0]["sunrise"];
-                    Sunset.Content = (string)data["days"][0]["sunset"];
-                    break;
-                case "uk":
-                    Temp.Content = (string)data["days"][0]["temp"] + "°C";
-                    TempMax.Content = (string)data["days"][0]["tempmax"] + "°C";
-                    TempMin.Content = (string)data["days"][0]["tempmin"] + "°C";
-                    Humidity.Content = (string)data["days"][0]["humidity"] + "%";
-                    WindSpeed.Content = (string)data["days"][0]["windspeed"] + "mp/h";
-                    WindDir.Content = (string)data["days"][0]["winddir"] + "°";
-                    Visibility.Content = (string)data["days"][0]["visibility"] + "mi";
-                    UvIndex.Content = (string)data["days"][0]["uvindex"];
-                    Sunrise.Content = (string)data["days"][0]["sunrise"];
-                    Sunset.Content = (string)data["days"][0]["sunset"];
-                    break;
-            }
-
             //Weather Condition
             try
             {
@@ -94,8 +58,6 @@ namespace Weatherly
                 var isDay = localDateTime < localSunset && localDateTime > localSunrise;
 
                 //Conditions itself
-                string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
                 string conditions = (string)data["days"][0]["conditions"];
 
                 if (conditions.ToLower().Contains("clear"))
@@ -162,10 +124,84 @@ namespace Weatherly
                         new BitmapImage(new Uri(path + "/images/fog.png"));
                 }
             }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Directory containing image files has not been found!\nReinstall Weatherly.",
+                    "Weatherly", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                switch (result)
+                {
+                    case MessageBoxResult.OK:
+                        Environment.Exit(1);
+                        break;
+                }
+            }
             catch (Exception e)
             {
                 MessageBox.Show($"Unknown exception occurred!\n{e}", "Weatherly", MessageBoxButton.OKCancel,
                     MessageBoxImage.Error);
+            }
+
+            //Display weather data
+            Address.Content = (string)data["resolvedAddress"];
+
+            /*ConsoleAllocator.ShowConsoleWindow();
+            Console.WriteLine(data);*/
+
+            var datetimeList = data["days"].Select(m => (string)m.SelectToken("datetime")).ToList();
+            
+            var tempList = data["days"].Select(m => (string)m.SelectToken("temp")).ToList();
+            var tempMaxList = data["days"].Select(m => (string)m.SelectToken("tempmax")).ToList();
+            var tempMinList = data["days"].Select(m => (string)m.SelectToken("tempmin")).ToList();
+            var humidityList = data["days"].Select(m => (string)m.SelectToken("humidity")).ToList();
+            var windSpeedList = data["days"].Select(m => (string)m.SelectToken("windspeed")).ToList();
+            var windDirList = data["days"].Select(m => (string)m.SelectToken("winddir")).ToList();
+            var visibilityList = data["days"].Select(m => (string)m.SelectToken("visibility")).ToList();
+            var uvIndexList = data["days"].Select(m => (string)m.SelectToken("uvindex")).ToList();
+            var sunriseList = data["days"].Select(m => (string)m.SelectToken("sunrise")).ToList();
+            var sunsetList = data["days"].Select(m => (string)m.SelectToken("sunset")).ToList();
+
+            Datetime.Content = datetimeList[dayIndex];
+
+            switch (unitGroup)
+            {
+                case "us":
+                    Temp.Content = tempList[dayIndex] + "°F";
+                    TempMax.Content = tempMaxList[dayIndex] + "°F";
+                    TempMin.Content = tempMinList[dayIndex] + "°F";
+                    Humidity.Content = humidityList[dayIndex] + "%";
+                    WindSpeed.Content = windSpeedList[dayIndex] + "mp/h";
+                    WindDir.Content = windDirList[dayIndex] + "°";
+                    Visibility.Content = visibilityList[dayIndex] + "mi";
+                    UvIndex.Content = uvIndexList[dayIndex];
+                    Sunrise.Content = sunriseList[dayIndex];
+                    Sunset.Content = sunsetList[dayIndex];
+                    break;
+                case "metric":
+                    Temp.Content = tempList[dayIndex] + "°C";
+                    TempMax.Content = tempMaxList[dayIndex] + "°C";
+                    TempMin.Content = tempMinList[dayIndex] + "°C";
+                    Humidity.Content = humidityList[dayIndex] + "%";
+                    WindSpeed.Content = windSpeedList[dayIndex] + "km/h";
+                    WindDir.Content = windDirList[dayIndex] + "°";
+                    Visibility.Content = visibilityList[dayIndex] + "km";
+                    UvIndex.Content = uvIndexList[dayIndex];
+                    Sunrise.Content = sunriseList[dayIndex];
+                    Sunset.Content = sunsetList[dayIndex];
+                    break;
+                case "uk":
+                    Temp.Content = tempList[dayIndex] + "°C";
+                    TempMax.Content = tempMaxList[dayIndex] + "°C";
+                    TempMin.Content = tempMinList[dayIndex] + "°C";
+                    Humidity.Content = humidityList[dayIndex] + "%";
+                    WindSpeed.Content = windSpeedList[dayIndex] + "mp/h";
+                    WindDir.Content = windDirList[dayIndex] + "°";
+                    Visibility.Content = visibilityList[dayIndex] + "mi";
+                    UvIndex.Content = uvIndexList[dayIndex];
+                    Sunrise.Content = sunriseList[dayIndex];
+                    Sunset.Content = sunsetList[dayIndex];
+                    break;
             }
         }
 
@@ -188,6 +224,9 @@ namespace Weatherly
             {
                 unitGroup = "uk";
             }
+
+            PreviousDay.Visibility = System.Windows.Visibility.Visible;
+            NextDay.Visibility = System.Windows.Visibility.Visible;
 
             DownloadData(TextBox.Text, unitGroup);
 
@@ -212,7 +251,7 @@ namespace Weatherly
             try
             {
                 var downloadedData = wc.DownloadData(
-                    $"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{city}/today?unitGroup={unitGroup}&include=days&key=J2HBVEN5P5DRPCYPHGED5VWM6&contentType=json");
+                    $"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{city}?unitGroup={unitGroup}&key=J2HBVEN5P5DRPCYPHGED5VWM6&contentType=json");
 
                 var convertedData = Encoding.UTF8.GetString(downloadedData);
 
@@ -244,6 +283,24 @@ namespace Weatherly
                     Environment.Exit(0);
                     break;
             }
+        }
+
+        private void PreviousDay_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (dayIndex == 0) return;
+            
+            dayIndex -= 1;
+
+            DisplayWeatherData();
+        }
+
+        private void NextDay_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (dayIndex >= 14) return;
+            
+            dayIndex += 1;
+
+            DisplayWeatherData();
         }
     }
 }
