@@ -101,7 +101,7 @@
             </Grid>
             <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enter" Click="LoadWeatherData" Width="100" Height="30" Margin="0 15 0 0"></Button>
         </Grid>
-        <Image Name="ConditionImage" Grid.Row="1" Source="" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="100" Margin="20"></Image>
+        <Image Name="ConditionImage" Grid.Row="1" Source="" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="125" Margin="20"></Image>
         <Button Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Exit" Width="100" Height="30" Margin="20" Click="ExitApplication"></Button>
     </Grid>
     

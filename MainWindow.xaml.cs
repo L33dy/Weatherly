@@ -56,12 +56,12 @@ namespace Weatherly
                     currentDateTime.AddHours(double.Parse(timeZOffset, CultureInfo.InvariantCulture));
 
                 var sunsets = data["days"].Select(m => (DateTime)m.SelectToken("sunset")).ToList();
-                var sunrises = data["days"].Select(m => (DateTime)m.SelectToken("sunset")).ToList();
+                var sunrises = data["days"].Select(m => (DateTime)m.SelectToken("sunrise")).ToList();
                 DateTime localSunset = sunsets[dayIndex];
                 DateTime localSunrise = sunrises[dayIndex];
 
                 var isDay = localDateTime < localSunset && localDateTime > localSunrise;
-
+                
                 //Conditions itself
                 var conditions = data["days"].Select(m => (string)m.SelectToken("conditions")).ToList();
                 string condition = conditions[dayIndex];
@@ -129,13 +129,6 @@ namespace Weatherly
                     ConditionImage.Source =
                         new BitmapImage(new Uri(path + "/images/fog.png"));
                 }
-            }
-            catch (DirectoryNotFoundException)
-            {
-                MessageBoxResult result = MessageBox.Show("Directory containing image files has not been found!\nReinstall Weatherly.",
-                    "Weatherly", MessageBoxButton.OK, MessageBoxImage.Error);
-                
-                if(result == MessageBoxResult.OK) Environment.Exit(1);
             }
             catch (Exception e)
             {
