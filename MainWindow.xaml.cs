@@ -26,7 +26,18 @@ namespace Weatherly
 
         public MainWindow()
         {
-            Icon = new BitmapImage(new Uri(path + "/images/icon.png"));
+            try
+            {
+                Icon = new BitmapImage(new Uri(path + "/images/icon.png"));
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBoxResult result = MessageBox.Show("Directory containing image files has not been found!\nReinstall Weatherly.",
+                    "Weatherly", MessageBoxButton.OK, MessageBoxImage.Error);
+                
+                if(result == MessageBoxResult.OK) Environment.Exit(1);
+            }
+            
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
         }
@@ -121,16 +132,10 @@ namespace Weatherly
             }
             catch (DirectoryNotFoundException)
             {
-                MessageBoxResult result = MessageBox.Show(
-                    "Directory containing image files has not been found!\nReinstall Weatherly.",
+                MessageBoxResult result = MessageBox.Show("Directory containing image files has not been found!\nReinstall Weatherly.",
                     "Weatherly", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                switch (result)
-                {
-                    case MessageBoxResult.OK:
-                        Environment.Exit(1);
-                        break;
-                }
+                
+                if(result == MessageBoxResult.OK) Environment.Exit(1);
             }
             catch (Exception e)
             {
@@ -286,6 +291,7 @@ namespace Weatherly
             
             dayIndex -= 1;
 
+            //Update weather data
             DisplayWeatherData();
         }
 
@@ -295,6 +301,7 @@ namespace Weatherly
             
             dayIndex += 1;
 
+            //Update weather data
             DisplayWeatherData();
         }
     }
