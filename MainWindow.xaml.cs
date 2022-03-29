@@ -21,7 +21,7 @@ namespace Weatherly
         private JObject data;
 
         private int dayIndex;
-        
+
         string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         public MainWindow()
@@ -32,12 +32,13 @@ namespace Weatherly
             }
             catch (DirectoryNotFoundException)
             {
-                MessageBoxResult result = MessageBox.Show("Directory containing image files has not been found!\nReinstall Weatherly.",
+                MessageBoxResult result = MessageBox.Show(
+                    "Directory containing image files has not been found!\nReinstall Weatherly.",
                     "Weatherly", MessageBoxButton.OK, MessageBoxImage.Error);
-                
-                if(result == MessageBoxResult.OK) Environment.Exit(1);
+
+                if (result == MessageBoxResult.OK) Environment.Exit(1);
             }
-            
+
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
         }
@@ -61,80 +62,17 @@ namespace Weatherly
                 DateTime localSunrise = sunrises[dayIndex];
 
                 var isDay = localDateTime < localSunset && localDateTime > localSunrise;
-                
-                //Conditions itself
-                var conditions = data["days"].Select(m => (string)m.SelectToken("conditions")).ToList();
-                string condition = conditions[dayIndex];
 
-                if (condition.ToLower().Contains("clear"))
-                {
-                    if (isDay)
-                    {
-                        ConditionImage.Source =
-                            new BitmapImage(new Uri(path + "/images/clear_day.png"));
-                    }
-                    else
-                    {
-                        ConditionImage.Source =
-                            new BitmapImage(new Uri(path + "/images/clear_night.png"));
-                    }
-                }
+                //Conditions
+                DetermineConditions();
 
-                if (condition.ToLower().Contains("partially"))
-                {
-                    if (isDay)
-                    {
-                        ConditionImage.Source =
-                            new BitmapImage(new Uri(path + "/images/partially_day.png"));
-                    }
-                    else
-                    {
-                        ConditionImage.Source =
-                            new BitmapImage(new Uri(path + "/images/partially_night.png"));
-                    }
-                }
 
-                if (condition.ToLower().Contains("overcast"))
-                {
-                    ConditionImage.Source =
-                        new BitmapImage(new Uri(path + "/images/overcast.png"));
-                }
-
-                if (condition.ToLower().Contains("thunderstorm"))
-                {
-                    ConditionImage.Source =
-                        new BitmapImage(new Uri(path + "/images/thunderstorm.png"));
-                }
-
-                if (condition.ToLower().Contains("rain"))
-                {
-                    ConditionImage.Source =
-                        new BitmapImage(new Uri(path + "/images/rain.png"));
-                }
-
-                if (condition.ToLower().Contains("snow"))
-                {
-                    ConditionImage.Source =
-                        new BitmapImage(new Uri(path + "/images/snow.png"));
-                }
-
-                if (condition.ToLower().Contains("snow") && condition.ToLower().Contains("rain"))
-                {
-                    ConditionImage.Source =
-                        new BitmapImage(new Uri(path + "/images/snowandrain.png"));
-                }
-
-                if (condition.ToLower().Contains("fog"))
-                {
-                    ConditionImage.Source =
-                        new BitmapImage(new Uri(path + "/images/fog.png"));
-                }
             }
             catch (Exception e)
             {
                 MessageBox.Show($"Unknown exception occurred!\n{e}", "Weatherly", MessageBoxButton.OKCancel,
                     MessageBoxImage.Error);
-                
+
                 TextBox.Clear();
             }
 
@@ -142,7 +80,7 @@ namespace Weatherly
             Address.Content = (string)data["resolvedAddress"];
 
             var datetimeList = data["days"].Select(m => (DateTime)m.SelectToken("datetime")).ToList();
-            
+
             var tempList = data["days"].Select(m => (string)m.SelectToken("temp")).ToList();
             var tempMaxList = data["days"].Select(m => (string)m.SelectToken("tempmax")).ToList();
             var tempMinList = data["days"].Select(m => (string)m.SelectToken("tempmin")).ToList();
@@ -153,9 +91,10 @@ namespace Weatherly
             var uvIndexList = data["days"].Select(m => (string)m.SelectToken("uvindex")).ToList();
             var sunriseList = data["days"].Select(m => (string)m.SelectToken("sunrise")).ToList();
             var sunsetList = data["days"].Select(m => (string)m.SelectToken("sunset")).ToList();
-
-            Datetime.Content = $"{datetimeList[dayIndex].Day:d2}.{datetimeList[dayIndex].Month:d2}.{datetimeList[dayIndex].Year}, {datetimeList[dayIndex].DayOfWeek}";
             
+            Datetime.Content =
+                $"{datetimeList[dayIndex].Day:d2}.{datetimeList[dayIndex].Month:d2}.{datetimeList[dayIndex].Year}, {datetimeList[dayIndex].DayOfWeek}";
+
             switch (unitGroup)
             {
                 case "us":
@@ -195,9 +134,85 @@ namespace Weatherly
                     Sunset.Content = sunsetList[dayIndex];
                     break;
             }
-            
+
             PreviousDay.Visibility = System.Windows.Visibility.Visible;
             NextDay.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        private void DetermineConditions()
+        {
+            var conditions = data["days"].Select(m => (string)m.SelectToken("icon")).ToList();
+            string condition = conditions[dayIndex];
+
+            switch (condition.ToLower())
+            {
+                case "clear-day":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/clear-day.png"));
+                    break;
+                case "clear-night":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/clear-night.png"));
+                    break;
+                case "cloudy":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/cloudy.png"));
+                    break;
+                case "fog":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/fog.png"));
+                    break;
+                case "hail":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/hail.png"));
+                    break;
+                case "partly-cloudy-day":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/partly-cloudy-day.png"));
+                    break;
+                case "partly-cloudy-night":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/partly-cloudy-night.png"));
+                    break;
+                case "rain-snow-showers-day":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/rain-snow-showers-day.png"));
+                    break;
+                case "rain-snow-showers-night":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/rain-snow-showers-night.png"));
+                    break;
+                case "rain-snow":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/rain-snow.png"));
+                    break;
+                case "rain":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/rain.png"));
+                    break;
+                case "showers-day":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/showers-day.png"));
+                    break;
+                case "showers-night":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/showers-night.png"));
+                    break;
+                case "sleet":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/sleet.png"));
+                    break;
+                case "snow-showers-day":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/snow-showers-day.png"));
+                    break;
+                case "snow-showers-night":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/snow-showers-night.png"));
+                    break;
+                case "snow":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/snow.png"));
+                    break;
+                case "thunder-rain":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/thunder-rain.png"));
+                    break;
+                case "thunder-showers-day":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/thunder-showers-day.png"));
+                    break;
+                case "thunder-showers-night":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/thunder-showers-night.png"));
+                    break;
+                case "thunder":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/thunder.png"));
+                    break;
+                case "wind":
+                    ConditionImage.Source = new BitmapImage(new Uri(path + "/images/wind.png"));
+                    break;
+            }
         }
 
         private void LoadWeatherData(object sender, RoutedEventArgs e)
@@ -254,7 +269,7 @@ namespace Weatherly
                 MessageBox.Show("Unknown WebException error occurred! \n " + we, "Weatherly",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
-                
+
                 TextBox.Clear();
             }
             catch (Exception e)
@@ -262,7 +277,7 @@ namespace Weatherly
                 MessageBox.Show("Unknown Exception error occurred! \n " + e, "Weatherly",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
-                
+
                 TextBox.Clear();
             }
         }
@@ -284,7 +299,7 @@ namespace Weatherly
         private void PreviousDay_OnClick(object sender, RoutedEventArgs e)
         {
             if (dayIndex == 0) return;
-            
+
             dayIndex -= 1;
 
             //Update weather data
@@ -294,7 +309,7 @@ namespace Weatherly
         private void NextDay_OnClick(object sender, RoutedEventArgs e)
         {
             if (dayIndex >= 14) return;
-            
+
             dayIndex += 1;
 
             //Update weather data
