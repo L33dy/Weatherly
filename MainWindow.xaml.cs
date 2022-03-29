@@ -134,6 +134,8 @@ namespace Weatherly
             {
                 MessageBox.Show($"Unknown exception occurred!\n{e}", "Weatherly", MessageBoxButton.OKCancel,
                     MessageBoxImage.Error);
+                
+                TextBox.Clear();
             }
 
             //Display weather data
@@ -152,7 +154,7 @@ namespace Weatherly
             var sunriseList = data["days"].Select(m => (string)m.SelectToken("sunrise")).ToList();
             var sunsetList = data["days"].Select(m => (string)m.SelectToken("sunset")).ToList();
 
-            Datetime.Content = $"{datetimeList[dayIndex].Day:d2}.{datetimeList[dayIndex].Month:d2}.{datetimeList[dayIndex].Year}";
+            Datetime.Content = $"{datetimeList[dayIndex].Day:d2}.{datetimeList[dayIndex].Month:d2}.{datetimeList[dayIndex].Year}, {datetimeList[dayIndex].DayOfWeek}";
             
             switch (unitGroup)
             {
@@ -193,6 +195,9 @@ namespace Weatherly
                     Sunset.Content = sunsetList[dayIndex];
                     break;
             }
+            
+            PreviousDay.Visibility = System.Windows.Visibility.Visible;
+            NextDay.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void LoadWeatherData(object sender, RoutedEventArgs e)
@@ -214,9 +219,6 @@ namespace Weatherly
             {
                 unitGroup = "uk";
             }
-
-            PreviousDay.Visibility = System.Windows.Visibility.Visible;
-            NextDay.Visibility = System.Windows.Visibility.Visible;
 
             DownloadData(TextBox.Text, unitGroup);
 
@@ -252,12 +254,16 @@ namespace Weatherly
                 MessageBox.Show("Unknown WebException error occurred! \n " + we, "Weatherly",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+                
+                TextBox.Clear();
             }
             catch (Exception e)
             {
                 MessageBox.Show("Unknown Exception error occurred! \n " + e, "Weatherly",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+                
+                TextBox.Clear();
             }
         }
 
@@ -293,6 +299,11 @@ namespace Weatherly
 
             //Update weather data
             DisplayWeatherData();
+        }
+
+        private void ClearInput(object sender, RoutedEventArgs e)
+        {
+            TextBox.Clear();
         }
     }
 }

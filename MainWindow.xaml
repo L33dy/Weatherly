@@ -81,10 +81,12 @@
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
             <Label Grid.Row="0" Grid.Column="0" FontSize="15" Content="Enter an address:"></Label>
             <TextBox Grid.Row="0" Grid.Column="1" Name="TextBox" Width="100"></TextBox>
+            <Button Grid.Row="0" Grid.Column="3" Width="30" Margin="10 0 0 0" Content="X" Background="Red" Foreground="White" Click="ClearInput"></Button>
             
             <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0 10">
                 <Grid.RowDefinitions>
