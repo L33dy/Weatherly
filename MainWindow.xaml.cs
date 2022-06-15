@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Newtonsoft.Json.Linq;
 
@@ -70,7 +71,7 @@ namespace Weatherly
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Unknown exception occurred!\n{e}", "Weatherly", MessageBoxButton.OKCancel,
+                MessageBox.Show($"Unknown exception occurred!\n{e}", "Weatherly", MessageBoxButton.OKCancel, 
                     MessageBoxImage.Error);
 
                 TextBox.Clear();
